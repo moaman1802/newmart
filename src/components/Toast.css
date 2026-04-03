@@ -1,0 +1,90 @@
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  animation: slideIn 0.3s ease;
+  border-left: 4px solid;
+}
+
+.toast-success {
+  border-left-color: #2e8b57;
+}
+
+.toast-error {
+  border-left-color: #ff3f6c;
+}
+
+.toast-info {
+  border-left-color: #2196f3;
+}
+
+.toast-wishlist {
+  border-left-color: #ff3f6c;
+}
+
+.toast-cart {
+  border-left-color: #ff3f6c;
+}
+
+.toast-icon {
+  font-size: 20px;
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 14px;
+  color: #282c3f;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #7e818c;
+  padding: 0 4px;
+}
+
+.toast-close:hover {
+  color: #ff3f6c;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile View */
+@media (max-width: 480px) {
+  .toast-container {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+  }
+  
+  .toast {
+    min-width: auto;
+    width: calc(100% - 20px);
+  }
+}

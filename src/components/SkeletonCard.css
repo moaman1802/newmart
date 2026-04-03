@@ -1,0 +1,77 @@
+.skeleton-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-image {
+  aspect-ratio: 3 / 4;
+  background: #e9ecef;
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 50%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-info {
+  padding: 12px;
+}
+
+.skeleton-title {
+  height: 16px;
+  background: #e9ecef;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 50%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-price {
+  height: 20px;
+  width: 60%;
+  background: #e9ecef;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 50%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-button {
+  height: 36px;
+  background: #e9ecef;
+  border-radius: 4px;
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 50%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
