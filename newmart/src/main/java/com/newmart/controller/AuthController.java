@@ -1,35 +1,45 @@
 package com.newmart.controller;
 
+import com.newmart.config.JwtUtil;
+import com.newmart.dto.AuthResponse;
+import com.newmart.dto.LoginRequest;
 import com.newmart.model.User;
 import com.newmart.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin("*")
 public class AuthController {
 
-    private final UserService service;
+    @Autowired
+    private UserService userService;
 
-    public AuthController(UserService service) {
-        this.service = service;
-    }
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return service.register(user);
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            User newUser = userService.register(user);
+            return ResponseEntity.ok(newUser);
+        } catch (RuntimeException e) {
+            // Email already exists
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
-    public Object login(@RequestBody User user) {
-        Optional<User> loggedUser = service.login(user.getEmail(), user.getPassword());
-
-        if(loggedUser.isPresent()) {
-            return loggedUser.get();
-        } else {
-            return "Invalid Credentials";
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        var user = userService.login(request.getEmail(), request.getPassword());
+        if (user.isPresent()) {
+            String token = jwtUtil.generateToken(user.get().getEmail());
+            AuthResponse response = new AuthResponse(token, user.get().getEmail(), user.get().getName());
+            return ResponseEntity.ok(response);
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 }

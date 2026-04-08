@@ -2,6 +2,8 @@ package com.newmart.service;
 
 import com.newmart.model.User;
 import com.newmart.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -9,20 +11,26 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository repo;
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserService(UserRepository repo) {
-        this.repo = repo;
-    }
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public User register(User user) {
-        return repo.save(user);
+        // Check if email already exists
+        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        // Encode password and save
+        user.setPassword(encoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
-    public Optional<User> login(String email, String password) {
-        Optional<User> user = repo.findByEmail(email);
-
-        if(user.isPresent() && user.get().getPassword().equals(password)) {
+    public Optional<User> login(String email, String rawPassword) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent() && encoder.matches(rawPassword, user.get().getPassword())) {
             return user;
         }
         return Optional.empty();

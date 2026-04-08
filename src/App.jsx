@@ -12,6 +12,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Profile from "./pages/Profile";
 import ToastContainer from "./components/ToastContainer";
 import useToast from "./hooks/useToast";
+import authService from "./services/authService";
 import "./index.css";
 
 function App() {
@@ -22,7 +23,8 @@ function App() {
   const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    // Check JWT token for login status
+    const loggedIn = authService.isLoggedIn();
     setIsLoggedIn(loggedIn);
     
     const savedWishlist = localStorage.getItem("wishlist");
@@ -74,7 +76,8 @@ function App() {
   const handleLogin = (status) => {
     setIsLoggedIn(status);
     if (status) {
-      addToast("Welcome back! 👋", "success");
+      const name = localStorage.getItem("name") || "User";
+      addToast(`Welcome back, ${name}! 👋`, "success");
     }
   };
 
@@ -155,7 +158,12 @@ function App() {
               <Profile addToast={addToast} />
             } 
           />
+          <Route 
+  path="/login" 
+  element={<Login setIsLoggedIn={handleLogin} addToast={addToast} />} 
+/>  
         </Routes>
+        
       </div>
 
       <Footer />

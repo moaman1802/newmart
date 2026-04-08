@@ -8,7 +8,7 @@ const Navbar = ({ setSearch, cart, isLoggedIn, setIsLoggedIn, wishlist }) => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const name = localStorage.getItem("userName") || "User";
+      const name = localStorage.getItem("name") || "User";
       setUserName(name);
     } else {
       setUserName("");
@@ -16,21 +16,22 @@ const Navbar = ({ setSearch, cart, isLoggedIn, setIsLoggedIn, wishlist }) => {
   }, [isLoggedIn]);
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userName");
+    localStorage.clear();
     setIsLoggedIn(false);
     navigate("/");
+    window.location.reload();
   };
 
   return (
     <nav className="navbar">
+      {/* Left Section - Logo + Categories */}
       <div className="nav-left">
         <h1 className="logo" onClick={() => navigate("/")}>
           NEW MART
         </h1>
 
         <ul className="nav-categories">
+          {/* MEN Dropdown */}
           <li className="dropdown">
             MEN
             <div className="dropdown-menu">
@@ -55,6 +56,7 @@ const Navbar = ({ setSearch, cart, isLoggedIn, setIsLoggedIn, wishlist }) => {
             </div>
           </li>
 
+          {/* WOMEN Dropdown */}
           <li className="dropdown">
             WOMEN
             <div className="dropdown-menu">
@@ -79,6 +81,7 @@ const Navbar = ({ setSearch, cart, isLoggedIn, setIsLoggedIn, wishlist }) => {
             </div>
           </li>
 
+          {/* KIDS Dropdown */}
           <li className="dropdown">
             KIDS
             <div className="dropdown-menu">
@@ -102,6 +105,7 @@ const Navbar = ({ setSearch, cart, isLoggedIn, setIsLoggedIn, wishlist }) => {
         </ul>
       </div>
 
+      {/* Center Section - Search Bar */}
       <div className="nav-center">
         <div className="search-bar">
           <span className="search-icon">🔍</span>
@@ -113,6 +117,7 @@ const Navbar = ({ setSearch, cart, isLoggedIn, setIsLoggedIn, wishlist }) => {
         </div>
       </div>
 
+      {/* Right Section - Icons */}
       <div className="nav-right">
         {isLoggedIn ? (
           <>

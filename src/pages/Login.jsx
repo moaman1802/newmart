@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import authService from "../services/authService";
 import "./Login.css";
 
 const Login = ({ setIsLoggedIn, addToast }) => {
@@ -9,57 +10,86 @@ const Login = ({ setIsLoggedIn, addToast }) => {
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     if (isLogin) {
-      if (formData.email && formData.password) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("userName", formData.email.split("@")[0]);
+      // Login
+      try {
+        console.log("[DEBUG] Trying to login user:", { email: formData.email });
+        const response = await authService.login(formData.email, formData.password);
+        console.log("[DEBUG] Login response:", response);
+
+        // Fixed saveToken
+        authService.saveToken(response);
+
         setIsLoggedIn(true);
-        addToast(`Welcome back, ${formData.email.split("@")[0]}! 👋`, "success");
+        if (addToast)
+          addToast(`Welcome back, ${response.name || response.data?.name}! 👋`, "success");
         navigate("/");
-      } else {
-        setError("Please fill all fields");
-        addToast("Please fill all fields", "error");
+      } catch (err) {
+        console.error("[ERROR] Login error:", err);
+        const errorMsg = err.response?.data?.message || "Invalid email or password";
+        setError(errorMsg);
+        if (addToast) addToast(errorMsg, "error");
       }
     } else {
-      if (formData.name && formData.email && formData.password && formData.confirmPassword) {
-        if (formData.password !== formData.confirmPassword) {
-          setError("Passwords do not match");
-          addToast("Passwords do not match", "error");
-          return;
-        }
-        if (formData.password.length < 6) {
-          setError("Password must be at least 6 characters");
-          addToast("Password must be at least 6 characters", "error");
-          return;
-        }
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("userName", formData.name);
+      // Register
+      if (formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match");
+        if (addToast) addToast("Passwords do not match", "error");
+        setLoading(false);
+        return;
+      }
+      if (formData.password.length < 4) {
+        setError("Password must be at least 4 characters");
+        if (addToast) addToast("Password must be at least 4 characters", "error");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log("[DEBUG] Trying to register user:", { name: formData.name, email: formData.email });
+        await authService.register(formData.name, formData.email, formData.password);
+
+        // Auto login after register
+        const loginResponse = await authService.login(formData.email, formData.password);
+        console.log("[DEBUG] Auto-login after register:", loginResponse);
+
+        authService.saveToken(loginResponse);
+
         setIsLoggedIn(true);
-        addToast(`Account created successfully! Welcome ${formData.name}! 🎉`, "success");
+        if (addToast)
+          addToast(`Account created! Welcome ${formData.name}! 🎉`, "success");
         navigate("/");
-      } else {
-        setError("Please fill all fields");
-        addToast("Please fill all fields", "error");
+      } catch (err) {
+        console.error("[ERROR] Registration error:", err);
+        let errorMsg = "Registration failed. Email may already exist.";
+
+        if (err.response?.status === 409) {
+          errorMsg = "Email already exists! Please use another email.";
+        } else if (err.response?.data?.message) {
+          errorMsg = err.response.data.message;
+        }
+
+        setError(errorMsg);
+        if (addToast) addToast(errorMsg, "error");
       }
     }
+
+    setLoading(false);
   };
 
   return (
@@ -79,6 +109,7 @@ const Login = ({ setIsLoggedIn, addToast }) => {
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={handleChange}
+                required
               />
             </div>
           )}
@@ -90,6 +121,7 @@ const Login = ({ setIsLoggedIn, addToast }) => {
               placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -100,6 +132,7 @@ const Login = ({ setIsLoggedIn, addToast }) => {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -111,25 +144,28 @@ const Login = ({ setIsLoggedIn, addToast }) => {
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                required
               />
             </div>
           )}
 
           {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" className="login-btn">
-            {isLogin ? "LOGIN" : "REGISTER"}
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? "Please wait..." : isLogin ? "LOGIN" : "REGISTER"}
           </button>
         </form>
 
         <div className="login-footer">
           <p>
             {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <span onClick={() => {
-              setIsLogin(!isLogin);
-              setError("");
-              setFormData({ name: "", email: "", password: "", confirmPassword: "" });
-            }}>
+            <span
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError("");
+                setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+              }}
+            >
               {isLogin ? " Register" : " Login"}
             </span>
           </p>
