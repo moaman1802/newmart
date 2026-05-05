@@ -21,7 +21,7 @@
 .logo {
   font-size: 22px;
   font-weight: 700;
-  color: #ff3f6c;
+  color: #3fbfff;
   cursor: pointer;
   letter-spacing: 1px;
 }
@@ -70,8 +70,8 @@
 .dropdown-menu div h4 {
   font-size: 14px;
   font-weight: 600;
-  color: #ff3f6c;
-  margin-bottom: 12px;
+  color: #c04242;
+  margin-bottom: 12px;    
 }
 
 .dropdown-menu p {
